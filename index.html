@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Buffett–Munger Screener (Offline PNG Wallpaper)</title>
+<style>
+  *{box-sizing:border-box}
+  :root{
+    /* slightly brighter cards & overall UI */
+    --card: rgba(255,255,255,0.20);
+    --cardHeader: rgba(255,255,255,0.18);
+    --border: rgba(255,255,255,0.28);
+    --text:  #f8fafc;
+    --muted: #c9d2de;
+    --accent:#34d399;
+    --chipP: #d1fae5; --chipPtxt:#065f46;
+    --chipF: #ffe4e6; --chipFtxt:#9b1c1c;
+  }
+  html,body{height:100%}
+  body{
+    margin:0;
+    font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,Helvetica,sans-serif;
+    color:#0f172a; /* dark text inside bright cards */
+    background:#0b0f1a;
+  }
+  /* Brighter wallpaper with a gentler dark overlay, plus fallback gradient */
+  .bg{
+    position:fixed; inset:0; z-index:-1;
+    background:
+      linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.55)),
+      url("buffett_munger.png"),
+      radial-gradient(circle at 50% 40%, rgba(255,255,255,0.10), transparent 60%),
+      linear-gradient(135deg, #0b1023, #1d2a42);
+    background-repeat:no-repeat,no-repeat,no-repeat,no-repeat;
+    background-size:cover, cover, 140% 140%, cover;
+    background-position:center center, center center, center center, center center;
+    filter: saturate(1.05) brightness(0.92);
+  }
+  .container{max-width:1100px;margin:0 auto;padding:24px}
+  header{
+    background: rgba(0,0,0,.35);
+    border-bottom:1px solid var(--border);
+    color: #e5e7eb;
+    padding:16px 0;
+  }
+  .brand{display:flex;align-items:center;gap:14px}
+  .logo{width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,.2);color:#0b0f1a;display:grid;place-items:center;font-weight:800}
+  .pillbar{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+  .pill{
+    font-size:12px; font-weight:600; letter-spacing:.2px;
+    padding:.25rem .55rem; border-radius:999px; color:#0b0f1a;
+    background: #e5f7ef; border:1px solid rgba(255,255,255,0.35);
+  }
+
+  .card{
+    background: var(--card);
+    backdrop-filter: blur(6px);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:16px;
+    margin-top:16px;
+    box-shadow:0 10px 28px rgba(0,0,0,.25)
+  }
+  .card .title{
+    margin:-16px -16px 12px -16px;
+    padding:10px 16px;
+    background: var(--cardHeader);
+    border-bottom:1px solid var(--border);
+    color:#fff; font-weight:700; border-top-left-radius:14px; border-top-right-radius:14px;
+  }
+
+  .controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:10px}
+  .btn{cursor:pointer;border:0;padding:9px 14px;border-radius:12px;font-weight:600}
+  .btn.primary{background:var(--accent);color:#052f2a}
+  .btn.ghost{background:rgba(255,255,255,.9);color:#111827}
+  textarea{
+    width:100%;min-height:80px;background:rgba(255,255,255,.92);
+    border:1px solid var(--border);color:#0f172a;padding:10px;border-radius:12px;
+    font:13px/1.45 ui-monospace,Consolas,Menlo,monospace
+  }
+
+  table{width:100%;border-collapse:collapse;background:rgba(255,255,255,.94);color:#0f172a;border-radius:12px;overflow:hidden}
+  thead th{
+    text-align:left;padding:10px 12px;font-weight:700;background:#eef2f7;border-bottom:1px solid #d4dbe6;
+  }
+  tbody td{padding:10px 12px;border-top:1px solid #e5e7eb;vertical-align:top}
+  tbody tr:hover{background:#f5f7fb}
+  .chip{display:inline-block;padding:2px 10px;border-radius:999px;font-size:12px;font-weight:600}
+  .chip.p{background:var(--chipP);color:var(--chipPtxt)}
+  .chip.f{background:var(--chipF);color:var(--chipFtxt)}
+  .muted{color:var(--muted)}
+  footer{color:#e5e7eb;font-size:12px;opacity:.9;padding:24px 0}
+
+  /* CSS-only tooltip using [data-tip] */
+  .tip{position:relative; cursor:help; border-bottom:1px dotted rgba(2,6,23,.35)}
+  .tip:hover::after{
+    content: attr(data-tip);
+    position:absolute; left:0; top:100%; transform: translateY(6px);
+    background:#0b0f1a; color:#e5e7eb; border:1px solid #334155; border-radius:8px;
+    padding:8px 10px; max-width:360px; white-space:normal; z-index:10; font-size:12px; line-height:1.35;
+    box-shadow:0 8px 18px rgba(0,0,0,.35);
+  }
+  .row-details{background:#f3f6fb}
+  .legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:10px}
+  .legend .key{font-size:12px;color:#e5e7eb;opacity:.95}
+</style>
+</head>
+<body>
+  <div class="bg"></div>
+
+  <header>
+    <div class="container">
+      <div class="brand">
+        <div class="logo">BM</div>
+        <div>
+          <div style="font-weight:800;font-size:18px;">Buffett–Munger Screener (Demo)</div>
+          <div class="legend">
+            <span class="pill">Cash + ST Inv. &gt; Debt</span>
+            <span class="pill">Debt / Equity &lt; 0.8</span>
+            <span class="pill">No Preferred</span>
+            <span class="pill">Retained ↑</span>
+            <span class="pill">Treasury ≠ 0</span>
+          </div>
+          <div class="muted" style="font-size:12px;margin-top:6px;">Local wallpaper: place <code>buffett_munger.png</code> next to this file.</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="card">
+      <div class="title">Input</div>
+      <label for="tickers" style="display:block;font-weight:600;margin-bottom:8px;">Enter tickers (comma/space separated)</label>
+      <textarea id="tickers">NVDA, AAPL, BRK.B, MRNA, INTC</textarea>
+      <div class="controls">
+        <button class="btn primary" id="analyzeBtn">Analyze</button>
+        <button class="btn ghost"   id="csvBtn">Export CSV</button>
+        <label class="muted" style="display:flex;align-items:center;gap:6px;">
+          <input type="checkbox" id="showMath"/> Show rule math
+        </label>
+      </div>
+    </div>
+
+    <div class="card" id="tableCard">
+      <div class="title">Results</div>
+      <table id="results">
+        <thead>
+          <tr>
+            <th class="tip" data-tip="Score = count of passes across the 5 rules">Score</th>
+            <th class="tip" data-tip="Ticker symbol (input)">Ticker</th>
+            <th class="tip" data-tip="Cash+ST Inv. = cashAndCashEquivalents + shortTermInvestments\nRule: Cash+ST Inv. > totalDebt">Cash&gt;Debt</th>
+            <th class="tip" data-tip="Debt/Equity = totalDebt / totalStockholdersEquity\nRule: &lt; 0.8">D/E&lt;0.8</th>
+            <th class="tip" data-tip="No Preferred: preferredStock === 0">No&nbsp;Pref</th>
+            <th class="tip" data-tip="Retained ↑ if retainedEarnings(latest) − retainedEarnings(oldest) ≥ 0">Retained ↑</th>
+            <th class="tip" data-tip="Treasury≠0 if treasuryStock ≠ 0 (buybacks present)">Treasury≠0</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+
+    <footer>Demo only • Works offline &nbsp;|&nbsp; © 2025 Andrew W. Lo — All Rights Reserved</footer>
+
+  </main>
+
+<script>
+(function(){
+  // ---- Utilities (ES5-safe) ----
+  function $(sel){ return document.querySelector(sel); }
+  function escCSV(s){ var v=(s==null?'':String(s)); return /[",\n]/.test(v) ? '"'+v.replace(/"/g,'""')+'"' : v; }
+  function formatNum(n){
+    if (n==null || isNaN(n)) return '—';
+    var s = (n<0? '−' : '');
+    var v = Math.abs(n);
+    if (v>=1e12) return s + (v/1e12).toFixed(2) + 'T';
+    if (v>=1e9 ) return s + (v/1e9 ).toFixed(2) + 'B';
+    if (v>=1e6 ) return s + (v/1e6 ).toFixed(2) + 'M';
+    if (v>=1e3 ) return s + (v/1e3 ).toFixed(2) + 'K';
+    return s + v.toString();
+  }
+
+  // ---- Demo fundamentals ----
+  var DEMO = {
+    "NVDA": {ticker:"NVDA", cashAndCashEquivalents:26651000000, shortTermInvestments:19190000000, totalDebt:10590000000, totalStockholdersEquity:79327000000, preferredStock:0, retainedEarnings:[41230000000,68038000000], treasuryStock:-22700000000},
+    "MRNA": {ticker:"MRNA", cashAndCashEquivalents: 6650000000, shortTermInvestments: 2850000000, totalDebt:  740000000, totalStockholdersEquity:  9300000000,  preferredStock:0, retainedEarnings:[10000000000, 8600000000],  treasuryStock:0},
+    "INTC": {ticker:"INTC", cashAndCashEquivalents: 8100000000, shortTermInvestments: 1200000000, totalDebt: 45500000000, totalStockholdersEquity: 98000000000,  preferredStock:0, retainedEarnings:[ 48800000000, 45484000000],  treasuryStock:-90800000000},
+    "AAPL": {ticker:"AAPL", cashAndCashEquivalents:30000000000, shortTermInvestments:35000000000, totalDebt: 98000000000, totalStockholdersEquity: 65000000000,  preferredStock:0, retainedEarnings:[ 55600000000, 62000000000],  treasuryStock:-500000000000},
+    "BRK.B":{ticker:"BRK.B",cashAndCashEquivalents:41000000000, shortTermInvestments:124000000000,totalDebt:120000000000,totalStockholdersEquity:550000000000,  preferredStock:0, retainedEarnings:[470000000000,490000000000],  treasuryStock:-120000000000}
+  };
+
+  function parseTickers(s){
+    var t = String(s||'').toUpperCase().split(/[\s,;|]+/);
+    var out = [], seen = {};
+    for(var i=0;i<t.length;i++){
+      var v = t[i].replace(/^\s+|\s+$/g,'');
+      if(!v) continue;
+      if(v.length>10) continue;
+      if(!seen[v]){ seen[v]=1; out.push(v); }
+    }
+    return out;
+  }
+
+  function evaluate(r){
+    var cash = (r && r.cashAndCashEquivalents ? r.cashAndCashEquivalents : 0) + (r && r.shortTermInvestments ? r.shortTermInvestments : 0);
+    var debt = r && r.totalDebt != null ? r.totalDebt : 0;
+    var eq   = r && r.totalStockholdersEquity != null ? r.totalStockholdersEquity : 0;
+    var pref = r && r.preferredStock != null ? r.preferredStock : null;
+    var ret  = (r && r.retainedEarnings && r.retainedEarnings.slice) ? r.retainedEarnings.slice(0) : [];
+    var tre  = r && r.treasuryStock != null ? r.treasuryStock : 0;
+
+    var cashGtDebt = (cash > debt);
+    var lowLev     = (eq ? (debt/eq < 0.8) : null);
+    var noPref     = (pref === 0);
+    var retUp      = (ret.length >= 2 ? (ret[ret.length-1] >= ret[0]) : null);
+    var hasTre     = (tre !== 0);
+
+    var score = (cashGtDebt?1:0) + (lowLev?1:0) + (noPref?1:0) + (retUp?1:0) + (hasTre?1:0);
+
+    return {
+      ticker: r.ticker,
+      score:  score,
+      cash:   cash,
+      debt:   debt,
+      eq:     eq,
+      pref:   pref,
+      retOld: ret.length?ret[0]:null,
+      retNew: ret.length?ret[ret.length-1]:null,
+      tre:    tre,
+      cashGtDebt: cashGtDebt,
+      lowLev:     lowLev,
+      noPref:     noPref,
+      retUp:      retUp,
+      hasTre:     hasTre
+    };
+  }
+
+  function chip(ok){
+    if (ok === null) return '<span class="chip" style="background:#e5e7eb;color:#111">n/a</span>';
+    return '<span class="chip '+(ok?'p':'f')+'">'+(ok?'pass':'fail')+'</span>';
+  }
+
+  function renderRows(rows, showMath){
+    var tb = document.getElementById('tbody');
+    var html = '';
+    for(var i=0;i<rows.length;i++){
+      var r = rows[i];
+
+      var tipCash = 'Cash+ST Inv. = cashAndCashEquivalents + shortTermInvestments\nValue: '+formatNum(r.cash)+' vs Debt '+formatNum(r.debt);
+      var tipDE   = 'Debt/Equity = totalDebt / totalStockholdersEquity\nValue: '+ (r.eq? (r.debt/r.eq).toFixed(3) : '—');
+      var tipPref = 'preferredStock === 0\nValue: '+ (r.pref==null?'—':r.pref);
+      var tipRet  = 'Retained Δ = latest − oldest\nValue: '+(r.retOld==null||r.retNew==null?'—':formatNum(r.retNew - r.retOld));
+      var tipTre  = 'treasuryStock ≠ 0\nValue: '+formatNum(r.tre);
+
+      html += '<tr>'
+        + '<td>' + r.score + '</td>'
+        + '<td>' + r.ticker + '</td>'
+        + '<td class="tip" data-tip="Cash+ST Inv. > Debt | '+escapeTip(tipCash)+'">'+      chip(r.cashGtDebt) + '</td>'
+        + '<td class="tip" data-tip="D/E < 0.8 | '+escapeTip(tipDE)+'">'+                  chip(r.lowLev)     + '</td>'
+        + '<td class="tip" data-tip="No preferred | '+escapeTip(tipPref)+'">'+             chip(r.noPref)     + '</td>'
+        + '<td class="tip" data-tip="Retained↑ | '+escapeTip(tipRet)+'">'+                 chip(r.retUp)      + '</td>'
+        + '<td class="tip" data-tip="Treasury≠0 | '+escapeTip(tipTre)+'">'+                chip(r.hasTre)     + '</td>'
+        + '</tr>';
+
+      if (showMath){
+        html += '<tr class="row-details"><td colspan="7">'
+          + '<div class="math" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;">'
+          + '<div><b>Cash−Debt</b>: ' + formatNum(r.cash - r.debt) + '</div>'
+          + '<div><b>Debt/Equity</b>: ' + (r.eq? (r.debt/r.eq).toFixed(3) : '—') + '</div>'
+          + '<div><b>Retained Δ</b>: ' + (r.retOld==null||r.retNew==null?'—':formatNum(r.retNew - r.retOld)) + '</div>'
+          + '<div><b>Treasury</b>: ' + formatNum(r.tre) + '</div>'
+          + '</div>'
+          + '</td></tr>';
+      }
+    }
+    tb.innerHTML = html;
+  }
+
+  function escapeTip(t){
+    return String(t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function analyze(){
+    var tickers = parseTickers(document.getElementById('tickers').value);
+    var list = tickers.length ? tickers : ["NVDA","AAPL","BRK.B","MRNA","INTC"];
+    var rows = [];
+    for (var i=0;i<list.length;i++){
+      var sym = list[i];
+      if (DEMO[sym]) rows.push(evaluate(DEMO[sym]));
+    }
+    rows.sort(function(a,b){ return (b.score - a.score) || (a.ticker > b.ticker ? 1 : -1); });
+    var showMath = document.getElementById('showMath').checked;
+    renderRows(rows, showMath);
+  }
+
+  function parseInput(){ return parseTickers(document.getElementById('tickers').value); }
+  function parseTickers(s){
+    var t = String(s||'').toUpperCase().split(/[\s,;|]+/);
+    var out = [], seen = {};
+    for(var i=0;i<t.length;i++){
+      var v = t[i].replace(/^\s+|\s+$/g,'');
+      if(!v) continue;
+      if(v.length>10) continue;
+      if(!seen[v]){ seen[v]=1; out.push(v); }
+    }
+    return out;
+  }
+
+  function exportCSV(){
+    // Export currently rendered rows.
+    var tb = document.getElementById('tbody');
+    if(!tb || !tb.rows || tb.rows.length === 0){ analyze(); }
+    var rows = [];
+    for (var i=0;i<tb.rows.length;i++){
+      var tr = tb.rows[i];
+      if (tr.cells.length !== 7) continue; // skip detail rows
+      var c = tr.cells;
+      function t(td){ return (td.textContent || td.innerText || '').trim(); }
+      rows.push([ t(c[1]), t(c[0]), t(c[2]), t(c[3]), t(c[4]), t(c[5]), t(c[6]) ]);
+    }
+    var header = ['ticker','score','cash_gt_debt','de_lt_0_8','no_pref','retained_up','treasury_not_zero'];
+    var out = [header.join(',')];
+    for (var j=0;j<rows.length;j++){ out += '\n' + rows[j].map(escCSV).join(','); }
+    var blob = new Blob([out], {type:'text/csv;charset=utf-8;'});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a'); a.href = url; a.download = 'buffett_munger_demo.csv';
+    document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(url); a.remove(); }, 100);
+  }
+
+  // Wire up & initial render
+  document.getElementById('analyzeBtn').onclick = analyze;
+  document.getElementById('csvBtn').onclick    = exportCSV;
+  document.getElementById('showMath').onchange = analyze;
+  analyze();
+})();
+</script>
+</body>
+</html>
